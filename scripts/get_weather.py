@@ -1,30 +1,28 @@
-import requests
-import datetime
-import os
+from meteostat import Point, Daily
+from datetime import datetime, timezone
 
-API_KEY = os.getenv("OPENWEATHER_API_KEY")
-CITY = "Paris"
+# Coordonnées de Paris
+paris = Point(48.8566, 2.3522)
+start = datetime(2023, 1, 1)
+end = datetime.now()
 
-URL = f"https://api.openweathermap.org/data/2.5/weather?q={CITY}&appid={API_KEY}&units=metric"
+data = Daily(paris, start, end)
+df = data.fetch()
+df = df.reset_index()
+df = df.rename(columns={
+    "time":"date",
+    "tavg": "temp_moyenne",
+    "tmin": "temp_min",
+    "tmax": "temp_max",
+    "prcp": "precipitations",
+    "snow": "neige",
+    "wdir": "direction_vent",
+    "wspd": "vitesse_vent",
+    "wpgt": "rafales_vent",
+    "pres": "pression",
+    "tsun": "ensoleillement"
+})
+df.to_csv("../data/weather_paris.csv", index=False)
 
-def get_weather():
-    response = requests.get(URL)
-    if response.status_code == 200:
-        data = response.json()
-        timestamp = datetime.datetime.now().isoformat()
-        result = {
-            "city": CITY,
-            "timestamp": timestamp,
-            "temperature": data["main"]["temp"],
-            "humidity": data["main"]["humidity"],
-            "pressure": data["main"]["pressure"],
-            "wind_speed": data["wind"]["speed"],
-            "weather": data["weather"][0]["description"]
-        }
-
-        print("Données météo :", result)
-    else:
-        print(f"Erreur {response.status_code} : {response.text}")
-
-if __name__ == "__main__":
-    get_weather()
+print(df.head())
+print(df.tail())
