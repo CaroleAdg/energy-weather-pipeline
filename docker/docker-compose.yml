@@ -1,0 +1,64 @@
+x-airflow-common:
+  &airflow-common
+  image: apache/airflow:2.9.1-python3.11
+  environment:
+    &airflow-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__WEBSERVER__SECRET_KEY: "dev_secret_key_1234567890"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'false'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
+  volumes:
+    - ../dags:/opt/airflow/dags
+    - ../scripts:/opt/airflow/scripts
+    - ../notebook:/opt/airflow/notebook
+    - ../data:/opt/airflow/data
+    - ../models:/opt/airflow/models
+    - ../requirements.txt:/requirements.txt
+  depends_on:
+    - postgres
+
+services:
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+
+  airflow-init:
+    <<: *airflow-common
+    entrypoint: >
+      bash -c "
+      pip install -r /requirements.txt &&
+      airflow db init &&
+      airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com
+      "
+    depends_on:
+      - postgres
+
+  airflow-webserver:
+    <<: *airflow-common
+    ports:
+      - "8081:8080"
+    command: >
+      bash -c "
+      pip install -r /requirements.txt &&
+      airflow webserver
+      "
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: >
+      bash -c "
+      pip install -r /requirements.txt &&
+      airflow scheduler
+      "
+
+volumes:
+  postgres-db-volume:
