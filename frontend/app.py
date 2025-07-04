@@ -1,7 +1,8 @@
 import streamlit as st
+import os
 from predict import predict_conso
 
-weather_path = "frontend/weather_paris.csv"
+weather_path = os.path.join(os.path.dirname(__file__), "weather_paris.csv")
 
 prediction_kW, today_weather = predict_conso(weather_path)
 prediction_MW = prediction_kW / 1000
