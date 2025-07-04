@@ -5,7 +5,7 @@ import joblib
 
 def predict_conso(meteo_csv_path: str = "./weather_paris.csv", model_path: str = "./models/random_forest_model.joblib") -> tuple:
     # Charger données météo
-    df = pd.read_csv("./data/weather_paris.csv", parse_dates=["date"])
+    df = pd.read_csv("./weather_paris.csv", parse_dates=["date"])
 
     # Garder la dernière ligne (aujourd'hui)
     last_row = df.iloc[-1]
