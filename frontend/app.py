@@ -1,7 +1,7 @@
 import streamlit as st
 from predict import predict_conso
 
-weather_path = "/opt/airflow/data/weather_paris.csv"
+weather_path = "./data/weather_paris.csv"
 
 prediction_kW, today_weather = predict_conso(weather_path)
 prediction_MW = prediction_kW / 1000

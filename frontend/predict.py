@@ -3,9 +3,9 @@
 import pandas as pd
 import joblib
 
-def predict_conso(meteo_csv_path: str = "/opt/airflow/data/weather_paris.csv", model_path: str = "/opt/airflow/models/random_forest_model.joblib") -> tuple:
+def predict_conso(meteo_csv_path: str = "./data/weather_paris.csv", model_path: str = "./models/random_forest_model.joblib") -> tuple:
     # Charger données météo
-    df = pd.read_csv("/opt/airflow/data/weather_paris.csv", parse_dates=["date"])
+    df = pd.read_csv("./data/weather_paris.csv", parse_dates=["date"])
 
     # Garder la dernière ligne (aujourd'hui)
     last_row = df.iloc[-1]
